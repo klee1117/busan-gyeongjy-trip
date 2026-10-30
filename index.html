@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f5f3ed">
+  <meta name="description" content="釜山與慶州旅行地圖、景點收藏、每日行程與旅遊備忘。">
+  <title>釜山・慶州旅行地圖</title>
+  <link rel="preconnect" href="https://unpkg.com">
+  <link rel="preconnect" href="https://tile.openstreetmap.org">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="page-shell">
+    <header class="topbar">
+      <a class="brand" href="#top" aria-label="回到頁面頂端">
+        <span class="brand-mark">旅</span>
+        <span class="brand-copy"><strong>ROAM NOTES</strong><small>KOREA · SOUTHEAST</small></span>
+      </a>
+      <div class="top-actions">
+        <span class="save-status" id="saveStatus" aria-live="polite">已儲存於此裝置</span>
+        <button class="button button-quiet" id="exportButton" type="button">匯出備份</button>
+        <button class="button button-quiet" id="importButton" type="button">匯入備份</button>
+        <input id="importFile" type="file" accept="application/json,.json" hidden>
+      </div>
+    </header>
+
+    <main id="top">
+      <section class="hero">
+        <div>
+          <p class="eyebrow">YOUR PERSONAL TRAVEL ATLAS</p>
+          <h1>釜山 <span>＋</span> 慶州</h1>
+          <p class="hero-subtitle">把想去的地方、每天的安排，以及旅途中的小事，放在同一張地圖上。</p>
+        </div>
+        <div class="trip-meta">
+          <div class="trip-date"><span class="meta-label">TRIP DATES</span><strong>2026.12.04 <i>—</i> 12.08</strong><small>5 DAYS · 4 NIGHTS</small></div>
+          <div class="trip-divider"></div>
+          <div class="trip-count"><strong id="placeCount">17</strong><small>已收藏地點</small></div>
+        </div>
+      </section>
+
+      <section class="map-toolbar" aria-label="地圖控制列">
+        <div class="toolbar-left">
+          <span class="toolbar-label">EXPLORE</span>
+          <button class="city-button active" type="button" data-city="all">全部地區</button>
+          <button class="city-button" type="button" data-city="Busan">釜山 Busan</button>
+          <button class="city-button" type="button" data-city="Gyeongju">慶州 Gyeongju</button>
+        </div>
+        <div class="toolbar-right">
+          <label class="search-box"><span aria-hidden="true">⌕</span><input id="mapSearch" type="search" placeholder="搜尋地點、備註…" autocomplete="off"></label>
+          <button class="button button-primary" id="addPlaceButton" type="button"><span>＋</span> 新增地點</button>
+        </div>
+      </section>
+
+      <section class="workspace">
+        <div class="map-column">
+          <div class="map-card">
+            <div id="map" role="application" aria-label="釜山與慶州互動地圖">
+              <div class="map-loading">正在載入地圖…</div>
+            </div>
+            <div class="map-footnote"><span class="live-dot"></span> 點選地圖上的標記查看資訊；新增地點時，先按「新增地點」再點地圖。</div>
+            <div class="map-legend" id="mapLegend" aria-label="地圖圖例">
+              <span><i class="legend-dot attraction"></i>景點</span>
+              <span><i class="legend-dot food"></i>美食</span>
+              <span><i class="legend-dot transit"></i>交通</span>
+              <span><i class="legend-dot shopping"></i>購物</span>
+              <span><i class="legend-dot stay"></i>住宿</span>
+            </div>
+          </div>
+          <div class="map-shortcuts">
+            <div><span class="shortcut-icon">↗</span><span><strong>依區域規劃</strong><small>先排同一側的景點，減少跨區移動。</small></span></div>
+            <div><span class="shortcut-icon">⌖</span><span><strong>地點可自由編輯</strong><small>收藏點、座標、備註與日期都能修改。</small></span></div>
+            <div><span class="shortcut-icon">⇩</span><span><strong>資料存在你的瀏覽器</strong><small>可匯出 JSON，換裝置前記得備份。</small></span></div>
+          </div>
+        </div>
+
+        <aside class="sidebar">
+          <section class="detail-card" id="detailPanel" aria-live="polite">
+            <div class="empty-detail">
+              <span class="empty-icon">⌖</span>
+              <p class="eyebrow">PLACE DETAILS</p>
+              <h2>選一個地點開始</h2>
+              <p>點擊地圖標記，查看景點資訊；也可以新增自己的收藏點。</p>
+              <button class="text-button" id="detailAddButton" type="button">＋ 在地圖新增地點</button>
+            </div>
+          </section>
+
+          <section class="organizer-card">
+            <div class="section-heading">
+              <div><p class="eyebrow">TRIP ORGANIZER</p><h2>旅行規劃</h2></div>
+              <span class="mini-calendar">DEC<br><b>26</b></span>
+            </div>
+            <div class="tab-row" role="tablist" aria-label="旅行規劃分頁">
+              <button class="tab-button active" type="button" role="tab" aria-selected="true" data-tab="itinerary">每日行程</button>
+              <button class="tab-button" type="button" role="tab" aria-selected="false" data-tab="places">所有地點</button>
+              <button class="tab-button" type="button" role="tab" aria-selected="false" data-tab="notes">旅行備忘</button>
+            </div>
+            <div class="tab-content" id="tabContent"></div>
+          </section>
+
+          <section class="budget-card">
+            <div><p class="eyebrow">PLANNED BUDGET</p><h3>已填寫地點預算</h3></div>
+            <strong id="budgetTotal">₩0</strong>
+            <small>加總各地點「預估花費」欄位；尚未填寫的費用不列入。</small>
+          </section>
+        </aside>
+      </section>
+
+      <footer class="footer">
+        <span>ROAM NOTES <i>·</i> BUSAN &amp; GYEONGJU</span>
+        <span>Map data © OpenStreetMap contributors</span>
+      </footer>
+    </main>
+  </div>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+  <script src="app.js"></script>
+</body>
+</html>
